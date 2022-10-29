@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "ts-node build/build.ts",
-    "watch": "ts-node build/watch.ts"
+    "build": "ts-node cicd/build.ts",
+    "watch": "ts-node cicd/watch.ts"
   },
   "repository": {
     "type": "git",

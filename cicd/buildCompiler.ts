@@ -10,16 +10,28 @@ import {
   PUG_PATH,
   SRC_DIR,
 } from "./buildConsts";
-import { BookmarkletBuild, BookmarkletConfig } from "./buildTypes";
+import {
+  BookmarkletBuild,
+  BookmarkletConfig,
+  BookmarkletJSONConfig,
+} from "./buildTypes";
 import { makeFileSafe } from "./buildUtils";
 import WatchExternalFilesPlugin from "webpack-watch-files-plugin";
 
 const bookmarklets = fs.readdirSync(BOOKMARKLETS_DIR);
-const bookmarkletConfigs: BookmarkletConfig[] = bookmarklets.map((label) => {
+const bookmarkletConfigs: BookmarkletConfig[] = bookmarklets.map((dirName) => {
+  const dirPath = path.join(BOOKMARKLETS_DIR, dirName);
+  const configPath = path.join(dirPath, "config.json");
+  let config: BookmarkletJSONConfig | undefined;
+
+  if (fs.existsSync(configPath))
+    config = JSON.parse(fs.readFileSync(configPath).toString());
+
   return {
-    entry: path.join(BOOKMARKLETS_DIR, label, "index.ts"),
-    name: makeFileSafe(label),
-    label,
+    entry: path.join(dirPath, "index.ts"),
+    name: makeFileSafe(dirName),
+    label: dirName,
+    ...config,
   };
 });
 
@@ -54,7 +66,9 @@ const config: webpack.Configuration = {
   devtool: false,
   plugins: [
     new MiniCssExtractPlugin(),
-    new WatchExternalFilesPlugin({ files: [PUG_PATH] }),
+    new WatchExternalFilesPlugin({
+      files: [PUG_PATH, path.join(SRC_DIR, "bookmarklets/**/config.json")],
+    }),
   ],
 };
 
@@ -76,13 +90,14 @@ const buildCallback = (err?: null | Error, stats?: Stats) => {
   if (!basePath) throw new Error("Could not find a base path");
 
   const builds: BookmarkletBuild[] = bookmarkletConfigs.map(
-    ({ name, label }) => {
+    ({ name, label, description }) => {
       const p = path.join(basePath, `${name}.js`);
       let scriptlet = `javascript:${encodeURI(fs.readFileSync(p).toString())}`;
 
       return {
         label,
         scriptlet,
+        description,
       };
     }
   );

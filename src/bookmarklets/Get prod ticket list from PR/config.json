@@ -1,0 +1,3 @@
+{
+    "description": "Copies a ticket/PR list from any front-end production PR.\n\nRun this bookmarklet on any front-end production PR and click the button that appears.  A markdown list of tickets/PRs associated with that deploy will be copied to your clipboard."
+}

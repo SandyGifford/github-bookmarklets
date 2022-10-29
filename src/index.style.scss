@@ -9,35 +9,48 @@ a {
 }
 
 .bookmarklets {
-    display: flex;
-    flex-direction: column;
     width: 50%;
     min-width: 500px;
     margin: auto;
 }
 
 .bookmarklet {
-    background: #445;
-    display: block;
-    margin: 8px;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: bold;
-    text-decoration: none;
-    align-self: flex-start;
     display: flex;
-    gap: 16px;
-    align-items: center;
-    cursor: grab;
+    flex-direction: column;
+    margin-bottom: 24px;
 
-    &:active {
-        cursor: grabbing;
-    }
+    &__link {
+        background: #556;
+        display: block;
+        margin: 8px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: bold;
+        text-decoration: none;
+        align-self: flex-start;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        cursor: grab;
 
-    &__icon {
-        &::after {
-            content: "🔗";
+        &:active {
+            cursor: grabbing;
         }
+
+        &__icon {
+            &::after {
+                content: "🔗";
+            }
+        }
+
+        // &__label {}
     }
-    &__label {}
+
+    &__description {
+        line-height: 1.5;
+        margin: 8px 16px;
+        border-left: solid 4px #668;
+        padding-left: 16px;
+        white-space: pre-line;
+    }
 }
