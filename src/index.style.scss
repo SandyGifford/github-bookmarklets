@@ -8,10 +8,14 @@ a {
     color: inherit;
 }
 
-.bookmarklets {
+.bookmarklets, .instructions {
     width: 50%;
     min-width: 500px;
-    margin: auto;
+    margin: 32px auto;
+}
+
+.instructions {
+    font-style: italic;
 }
 
 .bookmarklet {
