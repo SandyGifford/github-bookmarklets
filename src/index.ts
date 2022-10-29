@@ -1,2 +1,2 @@
 import "./index.style";
-console.log("hi");
+console.log("hi!!");

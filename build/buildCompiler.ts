@@ -1,51 +1,29 @@
-import webpack from "webpack";
-import path from "path";
 import fs from "fs";
-import { compileFile } from "pug";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-
-type BookmarkletConfig = {
-  entry: string;
-  name: string;
-  label: string;
-};
-
-type BookmarkletBuild = {
-  label: string;
-  scriptlet: string;
-};
-
-const BOOKMARKLETS_DIR = path.join(__dirname, "src/bookmarklets");
-const OUT_DIR = path.join(__dirname, "dist");
-
-const toFileName = (str: string) =>
-  str
-    .toLowerCase()
-    .replace(/\s/g, "-")
-    .replace(/[^a-z0-9\-]/gi, "")
-    .replace(/-+/, "-")
-    .replace(/^-/, "")
-    .replace(/-$/, "");
+import path from "path";
+import { compileFile } from "pug";
+import webpack, { Stats } from "webpack";
+import { BOOKMARKLETS_DIR, IS_DEV, OUT_DIR, SRC_DIR } from "./buildConsts";
+import { BookmarkletBuild, BookmarkletConfig } from "./buildTypes";
+import { makeFileSafe } from "./buildUtils";
 
 const bookmarklets = fs.readdirSync(BOOKMARKLETS_DIR);
 const bookmarkletConfigs: BookmarkletConfig[] = bookmarklets.map((label) => {
   return {
     entry: path.join(BOOKMARKLETS_DIR, label, "index.ts"),
-    name: toFileName(label),
+    name: makeFileSafe(label),
     label,
   };
 });
 
-const isDev = process.env.NODE_ENV === "development";
-
 const config: webpack.Configuration = {
-  mode: isDev ? "development" : "production",
+  mode: IS_DEV ? "development" : "production",
   entry: {
     ...bookmarkletConfigs.reduce((map, { entry, name }) => {
       map[name] = entry;
       return map;
     }, {} as webpack.EntryObject),
-    index: path.join(__dirname, "src/index.ts"),
+    index: path.join(SRC_DIR, "index.ts"),
   },
   output: {
     path: OUT_DIR,
@@ -70,10 +48,10 @@ const config: webpack.Configuration = {
   plugins: [new MiniCssExtractPlugin()],
 };
 
-const compiler = webpack(config);
+const buildCompiler = webpack(config);
+buildCompiler.outputFileSystem = fs;
 
-compiler.outputFileSystem = fs;
-compiler.run((err, stats) => {
+const buildCallback = (err?: null | Error, stats?: Stats) => {
   if (err) {
     console.error(err);
     return;
@@ -108,9 +86,11 @@ compiler.run((err, stats) => {
 
   fs.writeFileSync(
     path.join(OUT_DIR, "index.html"),
-    compileFile(path.join(__dirname, "src/index.pug"))({
+    compileFile(path.join(SRC_DIR, "index.pug"))({
       builds,
       styles,
     })
   );
-});
+};
+
+export { buildCompiler, buildCallback };
