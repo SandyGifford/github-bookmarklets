@@ -3,9 +3,16 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import { compileFile } from "pug";
 import webpack, { Stats } from "webpack";
-import { BOOKMARKLETS_DIR, IS_DEV, OUT_DIR, SRC_DIR } from "./buildConsts";
+import {
+  BOOKMARKLETS_DIR,
+  IS_DEV,
+  OUT_DIR,
+  PUG_PATH,
+  SRC_DIR,
+} from "./buildConsts";
 import { BookmarkletBuild, BookmarkletConfig } from "./buildTypes";
 import { makeFileSafe } from "./buildUtils";
+import WatchExternalFilesPlugin from "webpack-watch-files-plugin";
 
 const bookmarklets = fs.readdirSync(BOOKMARKLETS_DIR);
 const bookmarkletConfigs: BookmarkletConfig[] = bookmarklets.map((label) => {
@@ -45,7 +52,10 @@ const config: webpack.Configuration = {
     extensions: [".js", ".jsx", ".ts", ".tsx", ".scss", ".css"],
   },
   devtool: false,
-  plugins: [new MiniCssExtractPlugin()],
+  plugins: [
+    new MiniCssExtractPlugin(),
+    new WatchExternalFilesPlugin({ files: [PUG_PATH] }),
+  ],
 };
 
 const buildCompiler = webpack(config);
@@ -59,7 +69,7 @@ const buildCallback = (err?: null | Error, stats?: Stats) => {
 
   const styles = Object.keys(stats?.compilation.assets || {})
     .filter((filename) => !!filename.match(/\.css$/))
-    .map((filename) => `./${filename}`);
+    .map((filename) => `${filename}`);
 
   if (!stats) throw new Error("I got no stats");
   const basePath = stats.compilation.outputOptions.path;
@@ -77,7 +87,7 @@ const buildCallback = (err?: null | Error, stats?: Stats) => {
     }
   );
 
-  console.log("Build Info:");
+  console.log("\n\nBuild Info:");
   console.log(
     builds
       .map(({ label, scriptlet }) => `${label}: ${scriptlet.length}`)
@@ -86,7 +96,7 @@ const buildCallback = (err?: null | Error, stats?: Stats) => {
 
   fs.writeFileSync(
     path.join(OUT_DIR, "index.html"),
-    compileFile(path.join(SRC_DIR, "index.pug"))({
+    compileFile(PUG_PATH)({
       builds,
       styles,
     })
