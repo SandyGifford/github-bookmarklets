@@ -5,6 +5,9 @@ head
 body
     .bookmarklets
         each build in builds 
-            a.bookmarklet(href=build.scriptlet) 
+            a.bookmarklet(href=build.scriptlet draggable="true") 
                 .bookmarklet__icon
                 .bookmarklet__label= build.label
+
+    script(src="index.js" type="text/javascript")
+    

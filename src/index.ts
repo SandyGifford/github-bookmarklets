@@ -1,2 +1,5 @@
 import "./index.style";
-console.log("hi!!");
+
+Array.from(document.querySelectorAll(".bookmarklet")).forEach((a) =>
+  a.addEventListener("click", (e) => e.preventDefault())
+);

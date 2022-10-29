@@ -1,0 +1,3 @@
+{
+  "description": "Gets a markdown list of linear tickets.\n\nAnywhere in Linear you can select tickets from a list, run this bookmarklet to copy a markdown list of the checked tickets to your clipbaord."
+}

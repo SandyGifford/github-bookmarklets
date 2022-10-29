@@ -28,6 +28,11 @@ a {
     display: flex;
     gap: 16px;
     align-items: center;
+    cursor: grab;
+
+    &:active {
+        cursor: grabbing;
+    }
 
     &__icon {
         &::after {
