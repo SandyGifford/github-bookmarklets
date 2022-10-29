@@ -3,5 +3,8 @@ head
     each style in styles 
         link(rel="stylesheet" type="text/css" href=style)
 body
-    each build in builds 
-        a.bookmarklet(href=build.scriptlet)= build.label
+    .bookmarklets
+        each build in builds 
+            a.bookmarklet(href=build.scriptlet) 
+                .bookmarklet__icon
+                .bookmarklet__label= build.label

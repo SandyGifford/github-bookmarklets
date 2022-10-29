@@ -1,0 +1,38 @@
+body {
+    background: #334;
+    font-family: sans-serif;
+    color: white;
+}
+
+a {
+    color: inherit;
+}
+
+.bookmarklets {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    min-width: 500px;
+    margin: auto;
+}
+
+.bookmarklet {
+    background: #445;
+    display: block;
+    margin: 8px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-decoration: none;
+    align-self: flex-start;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    &__icon {
+        &::after {
+            content: "🔗";
+        }
+    }
+    &__label {}
+}
