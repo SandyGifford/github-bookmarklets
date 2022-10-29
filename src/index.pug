@@ -1,3 +1,7 @@
-each build in builds 
-    div
-        a(href=build.scriptlet)= build.label
+head
+    title Bookmarklets
+    each style in styles 
+        link(rel="style" href=style)
+body
+    each build in builds 
+        a.bookmarklet(href=build.scriptlet)= build.label

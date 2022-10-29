@@ -1,7 +1,8 @@
 import webpack from "webpack";
 import path from "path";
 import fs from "fs";
-import { compileFile, Options } from "pug";
+import { compileFile } from "pug";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
 type BookmarkletConfig = {
   entry: string;
@@ -39,17 +40,23 @@ const isDev = process.env.NODE_ENV === "development";
 
 const config: webpack.Configuration = {
   mode: isDev ? "development" : "production",
-  entry: bookmarkletConfigs.reduce((map, { entry, name }) => {
-    map[name] = entry;
-    return map;
-  }, {} as webpack.EntryObject),
+  entry: {
+    ...bookmarkletConfigs.reduce((map, { entry, name }) => {
+      map[name] = entry;
+      return map;
+    }, {} as webpack.EntryObject),
+    index: path.join(__dirname, "src/index.ts"),
+  },
   output: {
     path: OUT_DIR,
-    filename: "[name].js",
     clean: true,
   },
   module: {
     rules: [
+      {
+        test: /\.(?:(?:s[ac])|(?:c))ss$/i,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+      },
       {
         test: /\.tsx?$/,
         loader: "ts-loader",
@@ -57,9 +64,10 @@ const config: webpack.Configuration = {
     ],
   },
   resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    extensions: [".js", ".jsx", ".ts", ".tsx", ".scss", ".css"],
   },
   devtool: false,
+  plugins: [new MiniCssExtractPlugin()],
 };
 
 const compiler = webpack(config);
@@ -70,6 +78,10 @@ compiler.run((err, stats) => {
     console.error(err);
     return;
   }
+
+  const styles = Object.keys(stats?.compilation.assets || {})
+    .filter((filename) => !!filename.match(/\.css$/))
+    .map((filename) => `./${filename}`);
 
   if (!stats) throw new Error("I got no stats");
   const basePath = stats.compilation.outputOptions.path;
@@ -98,6 +110,7 @@ compiler.run((err, stats) => {
     path.join(OUT_DIR, "index.html"),
     compileFile(path.join(__dirname, "src/index.pug"))({
       builds,
+      styles,
     })
   );
 });
