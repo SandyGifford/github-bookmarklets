@@ -55,11 +55,13 @@ btn.addEventListener("click", async () => {
             const html = document.createElement("html");
             html.innerHTML = str;
 
-            const commentDiv = Array.from(
+            const commentDivs = Array.from(
               html.querySelectorAll(".timeline-comment")
-            ).find((c) => c.querySelector(".author")?.textContent === "linear");
+            ).filter(
+              (c) => c.querySelector(".author")?.textContent === "linear"
+            );
 
-            if (!commentDiv) {
+            if (!commentDivs) {
               if (!prNum) return;
               const altText = a.parentElement
                 ?.querySelector(".Link--secondary")
@@ -69,16 +71,20 @@ btn.addEventListener("click", async () => {
             }
 
             return arrayToList(
-              Array.from(
-                commentDiv.querySelectorAll<HTMLAnchorElement>(
-                  ".edit-comment-hide .d-block a"
+              commentDivs
+                .flatMap((div) =>
+                  Array.from(
+                    div.querySelectorAll<HTMLAnchorElement>(
+                      ".edit-comment-hide .d-block a"
+                    )
+                  )
                 )
-              ).map((link) => {
-                const [, ticketNum, title] =
-                  link.textContent?.match(/^(RAI-\d+) (.*)$/) || [];
-                if (!ticketNum) return;
-                return `- ${title} ([${ticketNum}](${link.href}), ${prLinkMarkdown})`;
-              })
+                .map((link) => {
+                  const [, ticketNum, title] =
+                    link.textContent?.match(/^(RAI-\d+) (.*)$/) || [];
+                  if (!ticketNum) return;
+                  return `- ${title} ([${ticketNum}](${link.href}), ${prLinkMarkdown})`;
+                })
             );
           });
       })
