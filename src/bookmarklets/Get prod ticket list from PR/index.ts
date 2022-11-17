@@ -61,7 +61,7 @@ btn.addEventListener("click", async () => {
               (c) => c.querySelector(".author")?.textContent === "linear"
             );
 
-            if (!commentDivs) {
+            if (!commentDivs.length) {
               if (!prNum) return;
               const altText = a.parentElement
                 ?.querySelector(".Link--secondary")
