@@ -1,4 +1,6 @@
+import { config as configDotEnv } from "dotenv";
 import path from "path";
+configDotEnv();
 
 export const IS_DEV = process.env.NODE_ENV === "development";
 export const SRC_DIR = path.join(__dirname, "../src");

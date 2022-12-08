@@ -33,6 +33,8 @@ const arrayToList = (arr: (string | undefined)[]) =>
 
 btn.addEventListener("click", async () => {
   startThink();
+  const foundPRs: Record<string, true> = {};
+  const foundTickets: Record<string, true> = {};
 
   const message = await Promise.all(
     Array.from(
@@ -47,6 +49,10 @@ btn.addEventListener("click", async () => {
       .map((a) => {
         const { href } = a;
         const [prNum] = href.match(/(\d+)$/) || [];
+
+        if (!prNum || foundPRs[prNum]) return;
+        foundPRs[prNum] = true;
+
         const prLinkMarkdown = prNum && `[PR#${prNum}](${href})`;
 
         return fetch(href)
@@ -62,7 +68,6 @@ btn.addEventListener("click", async () => {
             );
 
             if (!commentDivs.length) {
-              if (!prNum) return;
               const altText = a.parentElement
                 ?.querySelector(".Link--secondary")
                 ?.textContent?.replace(/ \($/, "");
@@ -82,7 +87,10 @@ btn.addEventListener("click", async () => {
                 .map((link) => {
                   const [, ticketNum, title] =
                     link.textContent?.match(/^(RAI-\d+) (.*)$/) || [];
-                  if (!ticketNum) return;
+
+                  if (!ticketNum || foundTickets[ticketNum]) return;
+                  foundPRs[ticketNum] = true;
+
                   return `- ${title} ([${ticketNum}](${link.href}), ${prLinkMarkdown})`;
                 })
             );

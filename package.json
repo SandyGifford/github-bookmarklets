@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/pug": "^2.0.6",
     "css-loader": "^6.7.1",
+    "dotenv": "^16.0.3",
     "mini-css-extract-plugin": "^2.6.1",
     "node-sass": "^7.0.3",
     "pug": "^3.0.2",
