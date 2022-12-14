@@ -89,7 +89,7 @@ btn.addEventListener("click", async () => {
                     link.textContent?.match(/^(RAI-\d+) (.*)$/) || [];
 
                   if (!ticketNum || foundTickets[ticketNum]) return;
-                  foundPRs[ticketNum] = true;
+                  foundTickets[ticketNum] = true;
 
                   return `- ${title} ([${ticketNum}](${link.href}), ${prLinkMarkdown})`;
                 })
