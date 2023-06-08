@@ -36,67 +36,76 @@ btn.addEventListener("click", async () => {
   const foundPRs: Record<string, true> = {};
   const foundTickets: Record<string, true> = {};
 
-  const message = await Promise.all(
-    Array.from(
-      document.querySelectorAll<HTMLAnchorElement>(".TimelineItem .issue-link")
-    )
-      .filter(
-        (a) =>
-          a.href.indexOf(
-            "https://github.com/reclaim-ai/reclaim-worklifecalendar/pull/"
-          ) === 0
+  const message =
+    ((d) => `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`)(
+      new Date()
+    ) +
+    "\n" +
+    window.location.href +
+    "\n" +
+    (await Promise.all(
+      Array.from(
+        document.querySelectorAll<HTMLAnchorElement>(
+          ".TimelineItem .issue-link"
+        )
       )
-      .map((a) => {
-        const { href } = a;
-        const [prNum] = href.match(/(\d+)$/) || [];
+        .filter(
+          (a) =>
+            a.href.indexOf(
+              "https://github.com/reclaim-ai/reclaim-worklifecalendar/pull/"
+            ) === 0
+        )
+        .map((a) => {
+          const { href } = a;
+          const [prNum] = href.match(/(\d+)$/) || [];
 
-        if (!prNum || foundPRs[prNum]) return;
-        foundPRs[prNum] = true;
+          if (!prNum || foundPRs[prNum]) return;
+          foundPRs[prNum] = true;
 
-        const prLinkMarkdown = prNum && `[PR#${prNum}](${href})`;
+          const prLinkMarkdown = prNum && `[PR#${prNum}](${href})`;
 
-        return fetch(href)
-          .then((r) => r.text())
-          .then((str) => {
-            const html = document.createElement("html");
-            html.innerHTML = str;
+          return fetch(href)
+            .then((r) => r.text())
+            .then((str) => {
+              const html = document.createElement("html");
+              html.innerHTML = str;
 
-            const commentDivs = Array.from(
-              html.querySelectorAll(".timeline-comment")
-            ).filter(
-              (c) => c.querySelector(".author")?.textContent === "linear"
-            );
+              const commentDivs = Array.from(
+                html.querySelectorAll(".timeline-comment")
+              ).filter(
+                (c) => c.querySelector(".author")?.textContent === "linear"
+              );
 
-            if (!commentDivs.length) {
-              const altText = a.parentElement
-                ?.querySelector(".Link--secondary")
-                ?.textContent?.replace(/ \($/, "");
-              if (altText) return `- ${altText} (${prLinkMarkdown})`;
-              else return `- ${prLinkMarkdown}`;
-            }
+              if (!commentDivs.length) {
+                const altText = a.parentElement
+                  ?.querySelector(".Link--secondary")
+                  ?.textContent?.replace(/ \($/, "");
+                if (altText) return `- ${altText} (${prLinkMarkdown})`;
+                else return `- ${prLinkMarkdown}`;
+              }
 
-            return arrayToList(
-              commentDivs
-                .flatMap((div) =>
-                  Array.from(
-                    div.querySelectorAll<HTMLAnchorElement>(
-                      ".edit-comment-hide .d-block a"
+              return arrayToList(
+                commentDivs
+                  .flatMap((div) =>
+                    Array.from(
+                      div.querySelectorAll<HTMLAnchorElement>(
+                        ".edit-comment-hide .d-block a"
+                      )
                     )
                   )
-                )
-                .map((link) => {
-                  const [, ticketNum, title] =
-                    link.textContent?.match(/^(RAI-\d+) (.*)$/) || [];
+                  .map((link) => {
+                    const [, ticketNum, title] =
+                      link.textContent?.match(/^(RAI-\d+) (.*)$/) || [];
 
-                  if (!ticketNum || foundTickets[ticketNum]) return;
-                  foundTickets[ticketNum] = true;
+                    if (!ticketNum || foundTickets[ticketNum]) return;
+                    foundTickets[ticketNum] = true;
 
-                  return `- ${title} ([${ticketNum}](${link.href}), ${prLinkMarkdown})`;
-                })
-            );
-          });
-      })
-  ).then(arrayToList);
+                    return `- ${title} ([${ticketNum}](${link.href}), ${prLinkMarkdown})`;
+                  })
+              );
+            });
+        })
+    ).then(arrayToList));
 
   await navigator.clipboard.writeText(message);
 
