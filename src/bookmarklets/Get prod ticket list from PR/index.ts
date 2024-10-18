@@ -1,4 +1,4 @@
-import { makeBtn, makeBtns } from "../../utils/makeBtn";
+import { makeBtns } from "../../utils/makeBtn";
 
 const BUTTON_CLASS_NAME = "getTicketListButton";
 

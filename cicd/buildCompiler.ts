@@ -73,7 +73,7 @@ const config: webpack.Configuration = {
 };
 
 const buildCompiler = webpack(config);
-buildCompiler.outputFileSystem = fs;
+// buildCompiler.outputFileSystem = fs;
 
 const buildCallback = (err?: null | Error, stats?: Stats) => {
   if (err) {
